@@ -8,19 +8,19 @@ def create_product(nome, preco, quantidade, categoria):
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO produtos (nome, preco, quantidade, categoria)
+        INSERT INTO PRODUCTS (nome, preco, quantidade, categoria)
         VALUES (?, ?, ?, ?)
         ''', (nome, preco, quantidade, categoria))
+    
+    conn.commit()
+    conn.close()
     
 def list_produtos():
     conn = connect_db()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM produtos')
+    cursor.execute('SELECT * FROM PRODUCTS')
     produtos = cursor.fetchall()
-
-    for produto in produtos:
-        print(produto)
 
     conn.close()
     return produtos
@@ -47,7 +47,7 @@ def update_product(product_id, nome=None, preco=None, quantidade=None, categoria
 
     values.append(product_id)
 
-    sql = f"UPDATE produtos SET {', '.join(fields)} WHERE id = ?"
+    sql = f"UPDATE PRODUCTS SET {', '.join(fields)} WHERE id = ?"
     cursor.execute(sql, values)
     conn.commit()
     conn.close()
@@ -56,6 +56,6 @@ def delete_product(product_id):
     conn = connect_db()
     cursor = conn.cursor()
 
-    cursor.execute('DELETE FROM produtos WHERE id = ?', (product_id,))
+    cursor.execute('DELETE FROM PRODUCTS WHERE id = ?', (product_id,))
     conn.commit()
     conn.close()
