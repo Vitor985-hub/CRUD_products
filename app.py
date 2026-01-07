@@ -36,26 +36,48 @@ def listar_produtos():
 
     return jsonify(resultado), 200
 
-# update
-@app.route('/products/<int:id>', methods=['PUT'])
-def atualizar_produto(id):
-    data = request.json
+# update and delete
 
-    update_product(
-        id,
-        data.get('nome'),
-        data.get('preco'),
-        data.get('quantidade'),
-        data.get('categoria')
-    )
+@app.route('/products/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def produto_por_id(id):
 
-    return jsonify({'message': 'produto atualizado com sucesso!'}), 200
+    if request.method == 'GET':
+        conn = connect_db()
+        cursor = conn.cursor()
 
-# delete
-@app.route('/products/<int:id>', methods=['DELETE'])
-def deletar_produto(id):
-    delete_product(id)
-    return jsonify({'message': 'produto deletado com sucesso'}), 200
+        cursor.execute('SELECT * FROM PRODUCTS WHERE id = ?', (id,))
+        product = cursor.fetchone()
+        conn.close()
+
+        if product is None:
+            return jsonify({'error': 'produto não encontrado'}), 404
+        
+        return jsonify({
+            'id': product[0],
+            'nome': product[1],
+            'preco': product[2],
+            'quantidade': product[3],
+            'categoria': product[4],
+            'data_criacao': product[5]
+        }), 200
+    
+    elif request.method == 'PUT':
+        data = request.json
+
+        update_product(
+            id,
+            data.get('nome'),
+            data.get('preco'),
+            data.get('quantidade'),
+            data.get('categoria')
+        )
+
+        return jsonify({'message': 'produto atualizado com sucesso!'}), 200
+
+    elif request.method == 'DELETE':
+        delete_product(id)
+        return jsonify({'message': 'produto deletado com sucesso!'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
